@@ -333,12 +333,14 @@ class TwigAdapter extends Fractal.Adapter {
                           let new_context = utils.defaultsDeep(_.cloneDeep(entity.getContext(), _.cloneDeep(main_context)));
                           new_context.attributes = new AttributesObject();
                           new_context._self = entity.toJSON();
-        
+
                           let template = self.engine.twig({
                               method: 'fractal',
                               async: false,
                               rethrow: true,
-                              name: item_id
+                              name: item_id,
+                              str: new_context._self.content,
+                              namespaces: self._config.namespaces || {}
                           });
         
                           rendered_elem = template.render(new_context);
@@ -422,7 +424,8 @@ class TwigAdapter extends Fractal.Adapter {
                     async: false,
                     rethrow: true,
                     name: meta.self ? `${self._config.handlePrefix}${meta.self.handle}` : tplPath,
-                    precompiled: str
+                    precompiled: str,
+                    namespaces: self._config.namespaces || {}
                 });
                 resolve(template.render(context));
             } catch (e) {
