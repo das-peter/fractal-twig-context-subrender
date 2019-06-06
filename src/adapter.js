@@ -315,10 +315,18 @@ class TwigAdapter extends Fractal.Adapter {
               else if((key === 'drupal_settings') && (type === 'object' || type === 'array')) {
                 self.drupal_settings.push(context_yaml[key]);
               }
+              // This is a subrender element with custom context.
+              else if(key.startsWith('$')) {
+                old_context_yaml = render_sub_component(key, context_yaml[key], true);
+                if(opened_ID !== null) {
+                  self.isChildRender = true;
+                }
+              }
               else if(type === 'object' || type === 'array') {
-                  render_yaml(context_yaml[key], old_context_yaml[key], main_context, opened_ID);
+                old_context_yaml[key] = render_yaml(context_yaml[key], old_context_yaml[key], main_context, opened_ID);
               }
               else if (type === 'string') {
+                  // Simple subrender element with default context data.
                   if(context_yaml[key].startsWith('$')) {
                     let context_yaml_split = context_yaml[key].split(',');
                     context_yaml[key] = '';
@@ -327,23 +335,7 @@ class TwigAdapter extends Fractal.Adapter {
                       let isAttr = false;
                       let rendered_elem;
                       if(item !== '$create_attributes()') {
-                          item_id = item.trim().replace('$', '@');
-                          let entity = source.find(item_id);
-                          entity = entity.isVariant ? entity : entity.variants().default();
-                          let new_context = utils.defaultsDeep(_.cloneDeep(entity.getContext(), _.cloneDeep(main_context)));
-                          new_context.attributes = new AttributesObject();
-                          new_context._self = entity.toJSON();
-
-                          let template = self.engine.twig({
-                              method: 'fractal',
-                              async: false,
-                              rethrow: true,
-                              name: item_id,
-                              str: new_context._self.content,
-                              namespaces: self._config.namespaces || {}
-                          });
-        
-                          rendered_elem = template.render(new_context);
+                          rendered_elem = render_sub_component(item, main_context);
                           if(opened_ID !== null) {
                             self.isChildRender = true;
                           }
@@ -364,6 +356,29 @@ class TwigAdapter extends Fractal.Adapter {
               }
           }
           return old_context_yaml;
+        }
+
+        function render_sub_component(item, main_context, only = false) {
+          let item_id = item.trim().replace('$', '@');
+          let entity = source.find(item_id);
+          entity = entity.isVariant ? entity : entity.variants().default();
+          let new_context = main_context;
+          if (!only) {
+            new_context = utils.defaultsDeep(_.cloneDeep(entity.getContext(), _.cloneDeep(new_context)));
+          }
+          new_context.attributes = new AttributesObject();
+          new_context._self = entity.toJSON();
+
+          let template = self.engine.twig({
+            method: 'fractal',
+            async: false,
+            rethrow: true,
+            name: item_id,
+            str: new_context._self.content,
+            namespaces: self._config.namespaces || {}
+          });
+
+          return template.render(new_context);
         }
 
         function drupal_settings_converter(settings_context) {
