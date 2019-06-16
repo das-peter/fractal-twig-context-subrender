@@ -47,4 +47,6 @@ context:
 * `fieldname: "Color"`: the `filterfronted` property will contain the rendered output of the `@filter-types--select` component. 
 The component will be rendered with the default / variant context.
 * `fieldname: "Size"`: the `filterfronted` property will contain the rendered output of the `@filter-types--select` component. 
-The component will be rendered with the context data provided under the key `$filter-types--select`.
+The component will be rendered with the context data provided under the key `$filter-types--select`.\
+If you defined the key `__importContext` in the context the rendering will do a deep merge of the component context 
+with the customized properties. Otherwise it will behave as configured using the `importContext` flag.
