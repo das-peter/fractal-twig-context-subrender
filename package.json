@@ -62,7 +62,7 @@
     "#DEV:/",
     "#USER"
   ],
-  "_resolved": "git+https://github.com/das-peter/fractal-twig-context-subrender.git#b658851de16537679ed692599a23350bd992ded7",
+  "_resolved": "git+https://github.com/das-peter/fractal-twig-context-subrender.git#939216608eec2ee1d36433bc6031d8ed6318bd4b",
   "_spec": "https://github.com/das-peter/fractal-twig-context-subrender.git",
   "_where": "W:\\htdocs\\dobi\\frontend",
   "author": {
