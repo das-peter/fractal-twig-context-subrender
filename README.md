@@ -1,21 +1,20 @@
-# Twig Adapter
+# Extended Fractal Twig Adapter
 
-An adapter to let you use [Twig](https://github.com/twigjs/twig.js) templates with [Fractal](http://github.com/frctl/fractal) in [Drupal](http://www.drupal.org) projects.
+An adapter that extends the [Fractal Twig](https://github.com/frctl/twig) adapter and introduces sub-render elements in 
+context data.
 
 ## Installation
 
 ```bash
-npm install --save-dev https://github.com/das-peter/fractal-twig-drupal-adapter.git
+npm install --save-dev https://github.com/das-peter/fractal-twig-context-subrender.git
 ```
 
 in your `fractal.js`
 
 ```js
 const fractal = require('@frctl/fractal').create();
-const twigAdapter = require('fractal-twig-drupal-adapter');
-const twig = twigAdapter({
-  handlePrefix: '@',
-});
+const twigAdapter = require('fractal-twig-context-subrender');
+const twig = twigAdapter();
 ```
 
 in your `component.config.yml`
