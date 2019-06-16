@@ -1,9 +1,9 @@
 {
-  "_from": "git+https://github.com/das-peter/fractal-twig-drupal-adapter.git",
-  "_id": "fractal-twig-drupal-adapter@1.0.0",
+  "_from": "git+https://github.com/das-peter/fractal-twig-context-subrender.git",
+  "_id": "fractal-twig-context-subrender@1.0.0",
   "_inBundle": false,
   "_integrity": "",
-  "_location": "/fractal-twig-drupal-adapter",
+  "_location": "/fractal-twig-context-subrender",
   "_phantomChildren": {
     "@allmarkedup/fang": "1.0.0",
     "@frctl/handlebars": "1.1.5",
@@ -52,18 +52,18 @@
   },
   "_requested": {
     "type": "git",
-    "raw": "https://github.com/das-peter/fractal-twig-drupal-adapter.git",
-    "rawSpec": "https://github.com/das-peter/fractal-twig-drupal-adapter.git",
-    "saveSpec": "git+https://github.com/das-peter/fractal-twig-drupal-adapter.git",
-    "fetchSpec": "https://github.com/das-peter/fractal-twig-drupal-adapter.git",
+    "raw": "https://github.com/das-peter/fractal-twig-context-subrender.git",
+    "rawSpec": "https://github.com/das-peter/fractal-twig-context-subrender.git",
+    "saveSpec": "git+https://github.com/das-peter/fractal-twig-context-subrender.git",
+    "fetchSpec": "https://github.com/das-peter/fractal-twig-context-subrender.git",
     "gitCommittish": null
   },
   "_requiredBy": [
     "#DEV:/",
     "#USER"
   ],
-  "_resolved": "git+https://github.com/das-peter/fractal-twig-drupal-adapter.git#b658851de16537679ed692599a23350bd992ded7",
-  "_spec": "https://github.com/das-peter/fractal-twig-drupal-adapter.git",
+  "_resolved": "git+https://github.com/das-peter/fractal-twig-context-subrender.git#b658851de16537679ed692599a23350bd992ded7",
+  "_spec": "https://github.com/das-peter/fractal-twig-context-subrender.git",
   "_where": "W:\\htdocs\\dobi\\frontend",
   "author": {
     "name": "ADYAX TEAM & das-peter"
@@ -74,7 +74,7 @@
     ]
   },
   "bugs": {
-    "url": "https://github.com/das-peter/fractal-twig-drupal-adapter/issues"
+    "url": "https://github.com/das-peter/fractal-twig-context-subrender/issues"
   },
   "bundleDependencies": false,
   "dependencies": {
@@ -84,18 +84,18 @@
     "twig": "^1.10.5"
   },
   "deprecated": false,
-  "description": "Twig template adapter for Fractal with Drupal 8 directives.",
+  "description": "Extension for the Fractal Twig Adapter to allow sub-render context data.",
   "files": [
     "src",
     "index.js"
   ],
-  "homepage": "https://github.com/das-peter/fractal-twig-drupal-adapter#readme",
+  "homepage": "https://github.com/das-peter/fractal-twig-context-subrender#readme",
   "license": "MIT",
   "main": "index.js",
-  "name": "fractal-twig-drupal-adapter",
+  "name": "fractal-twig-context-subrender",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/das-peter/fractal-twig-drupal-adapter.git"
+    "url": "git+https://github.com/das-peter/fractal-twig-context-subrender.git"
   },
   "scripts": {
     "release:major": "npm version major -m \"Released version %s\" && npm publish && git push --follow-tags",
