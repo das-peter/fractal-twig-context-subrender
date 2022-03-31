@@ -52,16 +52,16 @@ with the customized properties. Otherwise it will behave as configured using the
 
 <br/>
 
-## The `include` statement 
+### The `include` statement 
 
-### To include all the data from another component and assign it to specific variable
+#### To include all the data from another component and assign it to specific variable
 
 ```yaml
 context: 
   include: 'component-name--variant-name as customVariableName'   
 ```
 
-### To include object by it's source path
+#### To include object by it's source path
 
 ```yaml
 context: 
@@ -69,7 +69,7 @@ context:
     include: 'component-name--variant-name.path.to.the.source.data.object'   
 ```
 
-### To include all object's sub-properties use the `spread ... ` operator
+#### To include all object's sub-properties use the `...spread` operator
 
 ```yaml
 context: 
@@ -77,7 +77,7 @@ context:
     include: '...component-name--variant-name'   
 ```
 
-### To include all object's sub properties - spread operator with source path
+#### To include all object's sub properties - spread operator with source path
 
 ```yaml
 context: 
@@ -85,7 +85,7 @@ context:
     include: '...component-name--variant-name.some.path'   
 ```
 
-### To include multiple entries at once
+#### To include multiple entries at once
 
 ```yaml
 context: 
@@ -93,7 +93,7 @@ context:
     include: 'component-name--variant-name.some.path as someCustomVariableName, component-name--variant-name.some.path as anotherCustomVariableName'   
 ```
 
-### To include multiple entries one by one
+#### To include multiple entries one by one
 
 ```yaml
 context: 
@@ -102,7 +102,7 @@ context:
     include2: 'component-name--variant-name.some.path as anotherCustomVariableName'  
 ```
 
-### By default existing variables are not being overriden. To force overriding use `!` operator at the end
+#### By default existing variables are not being overriden. To force overriding use `!` operator at the end
 
 ```yaml
 context: 
