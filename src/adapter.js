@@ -122,6 +122,138 @@ class TwigAdapter extends Fractal.Adapter {
 
         });
 
+        function getDataByPath(object, path, omitLastElement) {
+            if (path === null) {
+                return object;
+            }
+
+            const pathParts = path.split('.');
+
+            if (omitLastElement) {
+                pathParts.pop();
+            }
+
+            let currentValue = object;
+            for (let i = 0; i < pathParts.length; i++) {
+                const pathPart = pathParts[i];
+                currentValue = currentValue[pathPart];
+            }
+
+            return currentValue;
+        }
+
+        // Example input: component-name--variant-name.path.to.the.source.data.object
+        // As a result we retrieve information about: the context name ("component-name--variant-name"), full object path ("path.to.the.source.data.object") and the final property name ("object")
+        function fullDataPath2Info(fullDataPath) {
+            const componentName_dataPath = fullDataPath.split(/\.(.*)/s);
+            const pathParts = fullDataPath.split('.');
+            if (pathParts.length > 1) {
+                return { contextName: componentName_dataPath[0], path: componentName_dataPath[1], lastPart: pathParts[pathParts.length - 1] };
+            } else {
+                return { contextName: componentName_dataPath[0], path: null, lastPart: null };
+            }
+        }
+
+        /* eslint-disable complexity */
+        // Goes throught the whole context data tree and turns all includes into a desired data.
+        function processIncludes(destinationDataNode) {
+            if (typeof destinationDataNode === 'object') {
+
+                for (let propertyName in destinationDataNode) {
+                    if (propertyName.startsWith('include')) {
+
+                        let fullDataPaths = destinationDataNode[propertyName];
+
+                        if (fullDataPaths.startsWith) {
+                            for (let fullDataPath of fullDataPaths.split(',')) {
+                                fullDataPath = fullDataPath.trim();
+
+                                // Indicates whether inner properties of the source data should be spread.
+                                let spreadInnerData = fullDataPath.startsWith('...');
+                                // Indicates whether the include data has a priority over already existing data.
+                                const overrideExistingData = fullDataPath.endsWith('!');
+                                // Allows for property rename. Helpfull especially when including full context data which doesn't have a name.
+                                const definedCustomPropertyName = fullDataPath.indexOf(' as ') !== -1;
+
+                                let customPropertyName = null;
+
+                                if (spreadInnerData) {
+                                    fullDataPath = fullDataPath.slice(3);
+                                }
+
+                                if (overrideExistingData) {
+                                    fullDataPath = fullDataPath.slice(0, -1);
+                                }
+
+                                if (definedCustomPropertyName) {
+                                    const fullDataPath_customPropertyName = fullDataPath.split(" as ")
+                                    fullDataPath = fullDataPath_customPropertyName[0]
+                                    customPropertyName = fullDataPath_customPropertyName[1]
+
+                                    // In case we specify variable name, the spread operator doesn't make sense in the current implementation.
+                                    spreadInnerData = false
+                                }
+
+                                const contextDataPathInfo = fullDataPath2Info(fullDataPath);
+                                const sourceComponentContextData = getEntityInfoByName(self._config.handlePrefix + contextDataPathInfo.contextName).contextData;
+                                const sourceData = getDataByPath(sourceComponentContextData, contextDataPathInfo.path, !spreadInnerData);
+
+                                if (spreadInnerData) {
+                                    // Iterates all inner properties and add them to the destination object.
+
+                                    for (let sourceDataPropertyName in sourceData) {
+                                        if ((overrideExistingData || typeof destinationDataNode[sourceDataPropertyName] === 'undefined') && typeof sourceData[sourceDataPropertyName] !== 'undefined') {
+                                            destinationDataNode[sourceDataPropertyName] = sourceData[sourceDataPropertyName];
+                                        }
+                                    }
+                                } else {
+                                    // In this case, it takes the whole sub-property by the requested property name (sourceDataPropertyName). 
+                                    // In case property name is not specified the whole object is used.
+
+                                    const sourceDataPropertyName = contextDataPathInfo.lastPart;
+                                    const finalDestinationPropertyName = customPropertyName || sourceDataPropertyName
+
+                                    if ((overrideExistingData || typeof destinationDataNode[finalDestinationPropertyName] === 'undefined') && (!sourceDataPropertyName || typeof sourceData[sourceDataPropertyName] !== 'undefined')) {
+                                        destinationDataNode[finalDestinationPropertyName] = sourceDataPropertyName ? sourceData[sourceDataPropertyName] : sourceData;
+                                    }
+                                }
+
+                            }
+
+                            // Removes "include" entry that is not needed any longer.
+                            delete destinationDataNode[propertyName];
+                        }
+                    } else {
+                        // Recursively processing the sub-tree.
+                        const subObject = destinationDataNode[propertyName];
+
+                        if (Array.isArray(subObject)) {
+                            for (let subObjectPropertyName in subObject) {
+                                // Processing each element in the array.
+                                processIncludes(subObject[subObjectPropertyName]);
+                            }
+                        } else {
+                            if (typeof subObject === 'object') {
+                                // Processing sub-objects.
+                                processIncludes(subObject);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return destinationDataNode;
+        }
+
+        function getEntityInfoByName(item) {
+            let item_id = item.trim().replace('$', self._config.handlePrefix);
+            let entity = source.find(item_id);
+            if (typeof entity === 'undefined') {
+                throw new Error(`Sub-Render item ${item_id} not found`);
+            }
+            return { entity: entity.isVariant ? entity : entity.variants().default(), item_id: item_id, contextData: entity.getContext() };
+        }
+
         function isHandle(str) {
             return str && str.startsWith(self._config.handlePrefix);
         }
@@ -142,16 +274,14 @@ class TwigAdapter extends Fractal.Adapter {
                     context[key] = process_context(entity, context[key]);
                 }
             }
-            return context;
+
+            // Handling includes 
+            return  processIncludes( context ) ;
         }
 
         function render_sub_component(item, context) {
-            let item_id = item.trim().replace('$', self._config.handlePrefix);
-            let entity = source.find(item_id);
-            if (typeof entity == 'undefined') {
-                throw new Error(`Sub-Render item ${item_id} not found`);
-            }
-            entity = entity.isVariant ? entity : entity.variants().default();
+            const entityInfo = getEntityInfoByName(item);
+            const entity = entityInfo.entity;
             if (context['__importContext']) {
                 // Might causes maximum call stack error.
                 context = utils.defaultsDeep(_.cloneDeep(context), entity.getContext());
@@ -162,7 +292,7 @@ class TwigAdapter extends Fractal.Adapter {
                 method: 'fractal',
                 async: false,
                 rethrow: true,
-                name: item_id,
+                name: entityInfo.item_id,
                 str: entity.content,
                 namespaces: self._config.namespaces || {}
             });
