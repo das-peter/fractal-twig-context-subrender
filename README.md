@@ -52,11 +52,7 @@ with the customized properties. Otherwise it will behave as configured using the
 
 <br/>
 
----
-<br/>
-
 ## The `include` statement 
-<br/>
 
 ### To include all the data from another component and assign it to specific variable
 
